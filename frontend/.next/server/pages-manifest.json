@@ -1,0 +1,16 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/": "pages/index.js",
+  "/shop": "pages/shop.js",
+  "/admin/dashboard": "pages/admin/dashboard.js",
+  "/join-partner": "pages/join-partner.js",
+  "/admin": "pages/admin.js",
+  "/admin/products": "pages/admin/products.js",
+  "/admin/orders": "pages/admin/orders.js",
+  "/admin/testimonials": "pages/admin/testimonials.js",
+  "/book-session": "pages/book-session.js",
+  "/about": "pages/about.js",
+  "/admin/sessions": "pages/admin/sessions.js"
+}
