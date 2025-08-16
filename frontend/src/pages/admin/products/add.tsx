@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ArrowLeftIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface Category {
   id: string;
@@ -39,7 +40,7 @@ const AddProduct: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/categories');
+      const response = await fetch(`${API_CONFIG.BASE_URL}/categories`);
       const data = await response.json();
       setCategories(data.categories || []);
     } catch (error) {
@@ -124,7 +125,7 @@ const AddProduct: React.FC = () => {
         image_urls: formData.image_urls.filter(url => url.trim() !== '')
       };
 
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

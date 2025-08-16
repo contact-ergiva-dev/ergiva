@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, EyeIcon, PlayIcon, StarIcon as StarIconOutline, XMarkIcon, UserIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface Testimonial {
   id: string;
@@ -36,7 +37,7 @@ const AdminTestimonials: React.FC = () => {
   const fetchTestimonials = async () => {
     try {
       const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch('http://localhost:5000/api/testimonials/admin/all', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/admin/all`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
         }
@@ -54,7 +55,7 @@ const AdminTestimonials: React.FC = () => {
   const handleToggleFeatured = async (testimonialId: string, isFeatured: boolean) => {
     try {
       const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch(`http://localhost:5000/api/testimonials/${testimonialId}/featured`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/${testimonialId}/featured`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +84,7 @@ const AdminTestimonials: React.FC = () => {
   const handleToggleActive = async (testimonialId: string, isActive: boolean) => {
     try {
       const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch(`http://localhost:5000/api/testimonials/${testimonialId}/active`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/${testimonialId}/active`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +117,7 @@ const AdminTestimonials: React.FC = () => {
 
     try {
       const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch(`http://localhost:5000/api/testimonials/${testimonialId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/${testimonialId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${adminToken}`

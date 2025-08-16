@@ -44,7 +44,7 @@ DB_PASSWORD=your_password
 # Server Configuration
 PORT=5000
 NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
+NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
 
 # Authentication & Security
 JWT_SECRET=your_super_secret_jwt_key_here
@@ -230,7 +230,7 @@ backend/
 ### API Security
 - **Helmet.js** for security headers
 - **Rate limiting** to prevent abuse
-- **CORS configuration** for frontend access
+- **CORS configuration** using NEXT_PUBLIC_BACKEND_URL
 - **Input validation** and sanitization
 
 ### Data Protection

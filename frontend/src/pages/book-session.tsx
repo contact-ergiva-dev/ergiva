@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import { CalendarIcon, ClockIcon, MapPinIcon, UserIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface BookingForm {
   name: string;
@@ -55,7 +56,7 @@ const BookSessionPage: React.FC = () => {
         notes: formData.notes
       };
 
-      const response = await fetch('http://localhost:5000/api/sessions/book', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/sessions/book`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

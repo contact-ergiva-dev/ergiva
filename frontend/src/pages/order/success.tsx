@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { CheckCircleIcon, PrinterIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { API_CONFIG } from '@/config/constants';
 
 interface Order {
   id: string;
@@ -43,7 +44,7 @@ const OrderSuccessPage: React.FC = () => {
       }
 
       // Fetch order details
-      const response = await fetch(`http://localhost:5000/api/orders/${order_id}`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/orders/${order_id}`);
       const data = await response.json();
 
       if (response.ok && data.order) {
@@ -61,7 +62,7 @@ const OrderSuccessPage: React.FC = () => {
 
   const verifyPayment = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/orders/verify-payment', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/orders/verify-payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

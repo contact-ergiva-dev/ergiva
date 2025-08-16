@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import { UserIcon, PhoneIcon, EnvelopeIcon, AcademicCapIcon, BriefcaseIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface PartnerForm {
   name: string;
@@ -63,7 +64,7 @@ const JoinPartnerPage: React.FC = () => {
         }
       });
 
-      const response = await fetch('http://localhost:5000/api/partners', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/partners`, {
         method: 'POST',
         body: formDataToSend,
       });

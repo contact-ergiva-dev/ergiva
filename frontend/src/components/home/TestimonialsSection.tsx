@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { StarIcon, PlayIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface Testimonial {
   id: string;
@@ -27,7 +28,7 @@ const TestimonialsSection: React.FC = () => {
 
   const fetchTestimonials = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/testimonials/featured');
+      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/featured`);
       const data = await response.json();
       setTestimonials(data.testimonials || []);
     } catch (error) {

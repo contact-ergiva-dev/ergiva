@@ -6,6 +6,7 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatCurrency } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface Product {
   id: string;
@@ -40,8 +41,8 @@ const ShopPage: React.FC = () => {
   const fetchData = async () => {
     try {
       const [productsRes, categoriesRes] = await Promise.all([
-        fetch('http://localhost:5000/api/products'),
-        fetch('http://localhost:5000/api/categories')
+        fetch(`${API_CONFIG.BASE_URL}/products`),
+        fetch(`${API_CONFIG.BASE_URL}/categories`)
       ]);
       
       const productsData = await productsRes.json();

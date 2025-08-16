@@ -14,6 +14,7 @@ import {
   ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface AdminStats {
   totalOrders: number;
@@ -46,7 +47,7 @@ const AdminDashboard: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/admin/login', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/auth/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +80,7 @@ const AdminDashboard: React.FC = () => {
   const fetchDashboardStats = async () => {
     try {
       const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch('http://localhost:5000/api/admin/dashboard', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/admin/dashboard`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`,
           'Content-Type': 'application/json',

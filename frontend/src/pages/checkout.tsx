@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { ShoppingBagIcon, ArrowLeftIcon, CreditCardIcon, TruckIcon, ShieldCheckIcon, UserIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
+import { API_CONFIG } from '@/config/constants';
 
 interface ShippingAddress {
   name: string;
@@ -127,7 +128,7 @@ const CheckoutPage: React.FC = () => {
 
       // Create order
       const token = Cookies.get('auth_token') || '';
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

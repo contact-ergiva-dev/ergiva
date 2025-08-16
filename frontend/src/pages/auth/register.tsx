@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
@@ -61,7 +62,7 @@ const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +101,7 @@ const RegisterPage: React.FC = () => {
     if (redirect) {
       localStorage.setItem('auth_redirect', redirect as string);
     }
-    window.location.href = 'http://localhost:5000/api/auth/google';
+    window.location.href = `${API_CONFIG.BACKEND_URL}/api/auth/google`;
   };
 
   return (

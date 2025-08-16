@@ -15,6 +15,7 @@ import {
   CurrencyRupeeIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface OrderItem {
   id: string;
@@ -78,7 +79,7 @@ const OrdersPage: React.FC = () => {
         return;
       }
       
-      const response = await fetch('http://localhost:5000/api/orders/my-orders', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/orders/my-orders`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

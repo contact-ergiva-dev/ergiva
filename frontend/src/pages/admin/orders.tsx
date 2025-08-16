@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { ArrowLeftIcon, EyeIcon, ShoppingBagIcon, XMarkIcon, CreditCardIcon, UserIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface Order {
   id: string;
@@ -42,7 +43,7 @@ const AdminOrders: React.FC = () => {
         throw new Error('Admin token not found');
       }
 
-      const response = await fetch('http://localhost:5000/api/orders/admin/all', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/orders/admin/all`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`,
           'Content-Type': 'application/json'
@@ -83,7 +84,7 @@ const AdminOrders: React.FC = () => {
         throw new Error('Admin token not found');
       }
 
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${adminToken}`,

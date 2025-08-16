@@ -12,6 +12,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 const ProfilePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -57,7 +58,7 @@ const ProfilePage: React.FC = () => {
         .find(row => row.startsWith('auth_token='))
         ?.split('=')[1] || '';
 
-      const response = await fetch('http://localhost:5000/api/auth/profile', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

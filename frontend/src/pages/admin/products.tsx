@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, EyeIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface Product {
   id: string;
@@ -37,7 +38,7 @@ const AdminProducts: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products');
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products`);
       const data = await response.json();
       setProducts(data.products || []);
     } catch (error) {
@@ -50,7 +51,7 @@ const AdminProducts: React.FC = () => {
 
   const handleViewProduct = async (productId: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${productId}`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products/${productId}`);
       const data = await response.json();
       
       if (response.ok && data.product) {
@@ -71,7 +72,7 @@ const AdminProducts: React.FC = () => {
       
       if (!product) return;
 
-      const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +109,7 @@ const AdminProducts: React.FC = () => {
     try {
       const adminToken = localStorage.getItem('admin_token');
       
-      const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${adminToken}`

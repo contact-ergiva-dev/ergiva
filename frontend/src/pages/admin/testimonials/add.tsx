@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { ArrowLeftIcon, StarIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 const AddTestimonial: React.FC = () => {
   const router = useRouter();
@@ -49,7 +50,7 @@ const AddTestimonial: React.FC = () => {
     try {
       const adminToken = localStorage.getItem('admin_token');
       
-      const response = await fetch('http://localhost:5000/api/testimonials', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

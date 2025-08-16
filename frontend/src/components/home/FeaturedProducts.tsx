@@ -6,6 +6,7 @@ import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 import { formatCurrency } from '@/lib/utils';
 import { useCart } from '@/lib/cart/CartContext';
 import toast from 'react-hot-toast';
+import { API_CONFIG } from '@/config/constants';
 
 interface Product {
   id: string;
@@ -29,7 +30,7 @@ const FeaturedProducts: React.FC = () => {
 
   const fetchFeaturedProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products/featured');
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products/featured`);
       const data = await response.json();
       setProducts(data.products || []);
     } catch (error) {
