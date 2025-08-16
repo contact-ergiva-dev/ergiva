@@ -101,7 +101,7 @@ const RegisterPage: React.FC = () => {
     if (redirect) {
       localStorage.setItem('auth_redirect', redirect as string);
     }
-    window.location.href = `${API_CONFIG.BACKEND_URL}/api/auth/google`;
+    window.location.href = `${API_CONFIG.BASE_URL}/auth/google`;
   };
 
   return (
