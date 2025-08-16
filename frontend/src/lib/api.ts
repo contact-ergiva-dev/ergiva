@@ -1,10 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
+import { API_CONFIG, ERROR_MESSAGES } from '@/config/constants';
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  baseURL: API_CONFIG.BASE_URL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -33,7 +34,7 @@ api.interceptors.response.use(
   (error) => {
     // Handle network errors
     if (!error.response) {
-      toast.error('Network error. Please check your connection.');
+      toast.error(ERROR_MESSAGES.NETWORK_ERROR);
       return Promise.reject(new Error('Network error'));
     }
 
@@ -53,31 +54,31 @@ api.interceptors.response.use(
 
     // Handle authorization errors
     if (status === 403) {
-      toast.error('You are not authorized to perform this action.');
+      toast.error(ERROR_MESSAGES.AUTHORIZATION_FAILED);
       return Promise.reject(new Error('Authorization failed'));
     }
 
     // Handle validation errors
     if (status === 400) {
-      const message = data?.error || data?.message || 'Invalid request';
+      const message = data?.error || data?.message || ERROR_MESSAGES.VALIDATION_FAILED;
       toast.error(message);
       return Promise.reject(new Error(message));
     }
 
     // Handle not found errors
     if (status === 404) {
-      const message = data?.error || 'Resource not found';
+      const message = data?.error || ERROR_MESSAGES.NOT_FOUND;
       return Promise.reject(new Error(message));
     }
 
     // Handle server errors
     if (status >= 500) {
-      toast.error('Server error. Please try again later.');
+      toast.error(ERROR_MESSAGES.SERVER_ERROR);
       return Promise.reject(new Error('Server error'));
     }
 
     // Handle other errors
-    const message = data?.error || data?.message || 'An error occurred';
+    const message = data?.error || data?.message || ERROR_MESSAGES.GENERIC_ERROR;
     toast.error(message);
     return Promise.reject(new Error(message));
   }

@@ -1,8 +1,10 @@
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { query } = require('../config/database');
 const router = express.Router();
+const { authenticateToken } = require('../middleware/auth');
 
 // Google OAuth login
 router.get('/google',
@@ -34,47 +36,180 @@ router.get('/google/callback',
   }
 );
 
+// User registration
+router.post('/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Please enter a valid email address' });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
+    // Check if user already exists
+    const existingUser = await query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
+
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Create new user
+    const result = await query(
+      `INSERT INTO users (name, email, password_hash) 
+       VALUES ($1, $2, $3) RETURNING id, name, email, is_admin`,
+      [name, email, hashedPassword]
+    );
+
+    const newUser = result.rows[0];
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: newUser.id, 
+        email: newUser.email,
+        is_admin: newUser.is_admin 
+      },
+      process.env.JWT_SECRET || 'ergiva-jwt-secret',
+      { expiresIn: '24h' }
+    );
+
+    res.status(201).json({
+      success: true,
+      token,
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        is_admin: newUser.is_admin
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+// User login (email/password)
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Find user by email
+    const result = await query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const user = result.rows[0];
+
+    // Check if user has password_hash (registered with email/password)
+    if (!user.password_hash) {
+      return res.status(401).json({ error: 'Please sign in with Google or use the correct email' });
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email,
+        is_admin: user.is_admin 
+      },
+      process.env.JWT_SECRET || 'ergiva-jwt-secret',
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        profile_picture: user.profile_picture,
+        phone: user.phone,
+        address: user.address,
+        is_admin: user.is_admin
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
 // Admin login (email/password - for admin panel)
 router.post('/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // For demo purposes, using simple admin check
-    // In production, implement proper password hashing
-    if (email === 'admin@ergiva.com' && password === 'admin123') {
-      const result = await query(
-        'SELECT * FROM users WHERE email = $1 AND is_admin = TRUE',
-        [email]
-      );
-
-      if (result.rows.length === 0) {
-        return res.status(401).json({ error: 'Invalid admin credentials' });
-      }
-
-      const admin = result.rows[0];
-      const token = jwt.sign(
-        { 
-          id: admin.id, 
-          email: admin.email,
-          is_admin: admin.is_admin 
-        },
-        process.env.JWT_SECRET || 'ergiva-jwt-secret',
-        { expiresIn: '24h' }
-      );
-
-      res.json({
-        success: true,
-        token,
-        user: {
-          id: admin.id,
-          email: admin.email,
-          name: admin.name,
-          is_admin: admin.is_admin
-        }
-      });
-    } else {
-      res.status(401).json({ error: 'Invalid credentials' });
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
     }
+
+    // Hardcoded admin credentials
+    const ADMIN_EMAIL = 'admin@ergiva.com';
+    const ADMIN_PASSWORD = 'admin123';
+
+    // Check hardcoded credentials
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: 'Invalid admin credentials' });
+    }
+
+    // Generate JWT token with admin privileges
+    const token = jwt.sign(
+      { 
+        id: 'admin-user-id',
+        email: ADMIN_EMAIL,
+        is_admin: true 
+      },
+      process.env.JWT_SECRET || 'ergiva-jwt-secret',
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: 'admin-user-id',
+        email: ADMIN_EMAIL,
+        name: 'Ergiva Admin',
+        is_admin: true
+      }
+    });
   } catch (error) {
     console.error('Admin login error:', error);
     res.status(500).json({ error: 'Login failed' });
@@ -82,7 +217,7 @@ router.post('/admin/login', async (req, res) => {
 });
 
 // Get current user
-router.get('/me', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.get('/me', authenticateToken, (req, res) => {
   res.json({
     user: {
       id: req.user.id,

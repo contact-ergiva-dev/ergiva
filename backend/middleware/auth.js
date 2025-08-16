@@ -40,7 +40,19 @@ const authenticateAdmin = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'ergiva-jwt-secret');
     
-    // Get user from database and check admin status
+    // Check if this is the hardcoded admin user
+    if (decoded.id === 'admin-user-id' && decoded.is_admin === true) {
+      // Create admin user object without database query
+      req.user = {
+        id: 'admin-user-id',
+        email: 'admin@ergiva.com',
+        name: 'Ergiva Admin',
+        is_admin: true
+      };
+      return next();
+    }
+    
+    // For regular users, check database
     const result = await query(
       'SELECT * FROM users WHERE id = $1 AND is_admin = TRUE', 
       [decoded.id]

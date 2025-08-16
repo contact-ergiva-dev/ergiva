@@ -57,9 +57,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const validateAndGetUser = async () => {
     try {
+      const token = Cookies.get('auth_token');
+      console.log('Validating token:', token ? token.substring(0, 20) + '...' : 'No token found');
+      
       const response = await authAPI.getProfile();
+      console.log('Profile response:', response);
       setUser(response.user);
     } catch (error) {
+      console.error('Token validation failed:', error);
       // Token is invalid or expired
       Cookies.remove('auth_token');
       setUser(null);
@@ -69,12 +74,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = (token: string) => {
+    console.log('Login called with token:', token.substring(0, 20) + '...');
+    
     // Store token in cookie (expires in 24 hours)
     Cookies.set('auth_token', token, { 
       expires: 1, 
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      secure: process.env.NODE_ENV === 'production'
     });
+    
+    console.log('Token stored in cookie, now validating...');
     
     // Get user profile
     validateAndGetUser();

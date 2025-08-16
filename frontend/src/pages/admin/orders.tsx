@@ -13,7 +13,7 @@ interface Order {
   paymentMethod: string;
   createdAt: string;
   items: {
-    productName: string;
+    product_name: string;
     quantity: number;
     price: number;
   }[];
@@ -55,7 +55,7 @@ const AdminOrders: React.FC = () => {
         const transformedOrders = data.orders.map((order: any) => ({
           id: order.id,
           customerName: order.user_name || 'Guest User',
-          customerEmail: JSON.parse(order.shipping_address || '{}').email || 'N/A',
+          customerEmail: order.shipping_address.email || 'N/A',
           totalAmount: parseFloat(order.total_amount),
           status: order.status,
           paymentMethod: order.payment_method,
@@ -76,22 +76,52 @@ const AdminOrders: React.FC = () => {
     }
   };
 
-  const handleStatusUpdate = (orderId: string, newStatus: string) => {
-    const updatedOrders = orders.map(order =>
-      order.id === orderId ? { ...order, status: newStatus } : order
-    );
-    setOrders(updatedOrders);
-    toast.success(`Order status updated to ${newStatus}`);
+  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    try {
+      const adminToken = localStorage.getItem('admin_token');
+      if (!adminToken) {
+        throw new Error('Admin token not found');
+      }
+
+      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        // Update local state
+        const updatedOrders = orders.map(order =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        );
+        setOrders(updatedOrders);
+        toast.success(`Order status updated to ${newStatus}`);
+      } else {
+        throw new Error(responseData.error || 'Failed to update order status');
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast.error('Failed to update order status');
+      // Refresh orders to get the correct state
+      fetchOrders();
+    }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'delivered':
         return 'bg-green-100 text-green-800';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
-      case 'shipped':
+      case 'confirmed':
         return 'bg-blue-100 text-blue-800';
+      case 'shipped':
+        return 'bg-purple-100 text-purple-800';
       case 'cancelled':
         return 'bg-red-100 text-red-800';
       default:
@@ -202,7 +232,7 @@ const AdminOrders: React.FC = () => {
                             <div className="text-sm text-gray-900">
                               {order.items.map((item, index) => (
                                 <div key={index} className="mb-1">
-                                  {item.productName} (x{item.quantity})
+                                  {item.product_name} (x{item.quantity})
                                 </div>
                               ))}
                             </div>
@@ -222,8 +252,9 @@ const AdminOrders: React.FC = () => {
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border-none ${getStatusColor(order.status)}`}
                             >
                               <option value="pending">Pending</option>
+                              <option value="confirmed">Confirmed</option>
                               <option value="shipped">Shipped</option>
-                              <option value="completed">Completed</option>
+                              <option value="delivered">Delivered</option>
                               <option value="cancelled">Cancelled</option>
                             </select>
                           </td>
@@ -371,7 +402,7 @@ const AdminOrders: React.FC = () => {
                         {viewingOrder.items.map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{item.productName}</div>
+                              <div className="text-sm font-medium text-gray-900">{item.product_name}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">

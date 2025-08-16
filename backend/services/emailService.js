@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 // Create email transporter
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port: process.env.EMAIL_PORT || 587,
     secure: false, // true for 465, false for other ports
@@ -16,7 +16,7 @@ const createTransporter = () => {
 // Email templates
 const emailTemplates = {
   orderConfirmation: (orderData) => ({
-    subject: `Order Confirmation - Ergiva #${orderData.order_id}`,
+    subject: `Order Confirmation - Ergiva #${orderData.id || orderData.order_id}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
@@ -29,7 +29,7 @@ const emailTemplates = {
           <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <tr style="background: #667eea; color: white;">
               <td style="padding: 15px; font-weight: bold;">Order ID</td>
-              <td style="padding: 15px;">#${orderData.order_id}</td>
+              <td style="padding: 15px;">#${orderData.id || orderData.order_id}</td>
             </tr>
             <tr>
               <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold;">Total Amount</td>

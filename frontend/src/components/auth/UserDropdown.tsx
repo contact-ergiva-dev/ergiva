@@ -36,9 +36,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ user }) => {
               <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 My Orders
               </Link>
-              <Link href="/sessions" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                My Sessions
-              </Link>
+              
               {user.is_admin && (
                 <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Admin Panel

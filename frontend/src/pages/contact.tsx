@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { PhoneIcon, EnvelopeIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -356,12 +357,12 @@ const ContactPage: React.FC = () => {
             <p className="text-gray-600 mb-4">
               Have more questions? We're here to help!
             </p>
-            <a
+            <Link
               href="/book-session"
               className="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors duration-200"
             >
               Book a Consultation
-            </a>
+            </Link>
           </div>
         </div>
       </section>

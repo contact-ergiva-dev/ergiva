@@ -7,6 +7,7 @@ import { useCart } from '@/lib/cart/CartContext';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { ShoppingBagIcon, ArrowLeftIcon, CreditCardIcon, TruckIcon, ShieldCheckIcon, UserIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import Cookies from 'js-cookie';
 
 interface ShippingAddress {
   name: string;
@@ -24,7 +25,7 @@ const CheckoutPage: React.FC = () => {
   const { items, totalItems, totalAmount, clearCart } = useCart();
   const { user, isLoading, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'instamojo' | 'pay_on_visit'>('instamojo');
+  const [paymentMethod, setPaymentMethod] = useState<'instamojo' | 'pay_on_visit'>('pay_on_visit');
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     name: user?.name || '',
     email: user?.email || '',
@@ -125,11 +126,12 @@ const CheckoutPage: React.FC = () => {
       };
 
       // Create order
+      const token = Cookies.get('auth_token') || '';
       const response = await fetch('http://localhost:5000/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(user ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {})
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify(orderData),
       });
@@ -144,8 +146,8 @@ const CheckoutPage: React.FC = () => {
           // Redirect to Instamojo payment page
           window.location.href = data.order.instamojo_payment.longurl;
         } else {
-          // For Pay on Visit, redirect to success page
-          toast.success('Order placed successfully! We will contact you shortly.');
+          // For Cash on Delivery, redirect to success page
+          toast.success('Order placed successfully! We will contact you shortly for delivery.');
           window.location.href = `/order/success?order_id=${data.order.id}`;
         }
       } else {
@@ -436,27 +438,28 @@ const CheckoutPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <label className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg cursor-not-allowed opacity-50">
                       <input
                         type="radio"
                         name="payment_method"
                         value="instamojo"
-                        checked={paymentMethod === 'instamojo'}
-                        onChange={(e) => setPaymentMethod(e.target.value as 'instamojo' | 'pay_on_visit')}
+                        checked={false}
+                        disabled
                         className="mt-1"
                       />
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <CreditCardIcon className="w-5 h-5 text-primary-600" />
-                          <span className="font-medium">Online Payment</span>
+                          <CreditCardIcon className="w-5 h-5 text-gray-400" />
+                          <span className="font-medium text-gray-500">Online Payment</span>
+                          <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Coming Soon</span>
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-gray-400 mt-1">
                           Pay securely using UPI, Credit/Debit Card, Net Banking
                         </p>
                       </div>
                     </label>
 
-                    <label className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label className="flex items-start space-x-3 p-4 border border-primary-200 rounded-lg cursor-pointer hover:bg-primary-50 bg-primary-50">
                       <input
                         type="radio"
                         name="payment_method"

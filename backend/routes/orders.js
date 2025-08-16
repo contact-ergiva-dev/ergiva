@@ -26,6 +26,11 @@ router.post('/', optionalAuth, async (req, res) => {
 
     const userId = req.user ? req.user.id : null;
 
+    // Ensure user is authenticated for order creation
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required to create orders' });
+    }
+
     // Calculate total amount
     let totalAmount = 0;
     const orderItems = [];
@@ -81,9 +86,9 @@ router.post('/', optionalAuth, async (req, res) => {
     // Insert order items
     for (const item of orderItems) {
       await query(`
-        INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
-        VALUES ($1, $2, $3, $4, $5)
-      `, [order.id, item.product_id, item.product_name, item.quantity, item.price]);
+         INSERT INTO order_items (order_id, product_id, quantity, price)
+         VALUES ($1, $2, $3, $4)
+       `, [order.id, item.product_id, item.quantity, item.price]);
 
       // Update product stock
       await query(
@@ -121,9 +126,12 @@ router.post('/', optionalAuth, async (req, res) => {
           ['failed', order.id]
         );
       }
+    } else if (payment_method === 'pay_on_visit') {
+      // For cash on delivery, payment status remains 'pending' until delivery
+      console.log('Cash on delivery order created:', order.id);
     }
 
-    // Send confirmation emails
+    // Send confirmation email to user only
     try {
       const orderWithItems = {
         ...order,
@@ -135,9 +143,6 @@ router.post('/', optionalAuth, async (req, res) => {
         shipping_address.email || req.user?.email,
         orderWithItems
       );
-
-      // Send notification to admin
-      await sendOrderConfirmation('admin@ergiva.com', orderWithItems, true);
     } catch (emailError) {
       console.error('Order confirmation email error:', emailError);
       // Don't fail the order if email fails
@@ -265,13 +270,14 @@ router.get('/my-orders', authenticateToken, async (req, res) => {
                json_build_object(
                  'id', oi.id,
                  'product_id', oi.product_id,
-                 'product_name', oi.product_name,
+                 'product_name', p.name,
                  'quantity', oi.quantity,
                  'price', oi.price
                )
              ) as items
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
+      LEFT JOIN products p ON oi.product_id = p.id
       WHERE o.user_id = $1
       GROUP BY o.id
       ORDER BY o.created_at DESC
@@ -284,8 +290,28 @@ router.get('/my-orders', authenticateToken, async (req, res) => {
       [userId]
     );
 
+    // Parse shipping_address for each order
+    const ordersWithParsedAddress = result.rows.map(order => {
+      // let parsedShippingAddress = {};
+      // try {
+      //   if (order.shipping_address) {
+      //     parsedShippingAddress = typeof order.shipping_address === 'string' 
+      //       ? JSON.parse(order.shipping_address) 
+      //       : order.shipping_address;
+      //   }
+      // } catch (error) {
+      //   console.warn('Failed to parse shipping_address for order:', order.id, error);
+      //   parsedShippingAddress = {};
+      // }
+      
+      return {
+        ...order,
+        shipping_address: order.shipping_address
+      };
+    });
+
     res.json({
-      orders: result.rows,
+      orders: ordersWithParsedAddress,
       pagination: {
         total: parseInt(countResult.rows[0].count),
         limit: parseInt(limit),
@@ -309,13 +335,14 @@ router.get('/:id', optionalAuth, async (req, res) => {
                json_build_object(
                  'id', oi.id,
                  'product_id', oi.product_id,
-                 'product_name', oi.product_name,
+                 'product_name', p.name,
                  'quantity', oi.quantity,
                  'price', oi.price
                )
              ) as items
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
+      LEFT JOIN products p ON oi.product_id = p.id
       WHERE o.id = $1
     `;
     const queryParams = [id];
@@ -334,7 +361,26 @@ router.get('/:id', optionalAuth, async (req, res) => {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    res.json({ order: result.rows[0] });
+    // Parse shipping_address for the order
+    const order = result.rows[0];
+    // let parsedShippingAddress = {};
+    // try {
+    //   if (order.shipping_address) {
+    //     parsedShippingAddress = typeof order.shipping_address === 'string' 
+    //       ? order.shipping_address)
+    //       : order.shipping_address;
+    //   }
+    // } catch (error) {
+    //   console.warn('Failed to parse shipping_address for order:', order.id, error);
+    //   parsedShippingAddress = {};
+    // }
+
+    res.json({ 
+      order: {
+        ...order,
+        shipping_address: order.shipping_address
+      }
+    });
   } catch (error) {
     console.error('Get order error:', error);
     res.status(500).json({ error: 'Failed to fetch order' });
@@ -361,7 +407,7 @@ router.get('/admin/all', authenticateAdmin, async (req, res) => {
                json_build_object(
                  'id', oi.id,
                  'product_id', oi.product_id,
-                 'product_name', oi.product_name,
+                  'product_name', p.name,
                  'quantity', oi.quantity,
                  'price', oi.price
                )
@@ -369,6 +415,7 @@ router.get('/admin/all', authenticateAdmin, async (req, res) => {
       FROM orders o
       LEFT JOIN users u ON o.user_id = u.id
       LEFT JOIN order_items oi ON o.id = oi.order_id
+       LEFT JOIN products p ON oi.product_id = p.id
       WHERE 1=1
     `;
     const queryParams = [];
@@ -433,8 +480,28 @@ router.get('/admin/all', authenticateAdmin, async (req, res) => {
 
     const countResult = await query(countQuery, countParams);
 
+    // Parse shipping_address for each order
+    const ordersWithParsedAddress = result.rows.map(order => {
+      // let parsedShippingAddress = {};
+      // try {
+      //   if (order.shipping_address) {
+      //     parsedShippingAddress = typeof order.shipping_address === 'string' 
+      //       ? JSON.parse(order.shipping_address) 
+      //       : order.shipping_address;
+      //   }
+      // } catch (error) {
+      //   console.warn('Failed to parse shipping_address for order:', order.id, error);
+      //   parsedShippingAddress = {};
+      // }
+      
+      return {
+        ...order,
+        shipping_address:  order.shipping_address
+      };
+    });
+
     res.json({
-      orders: result.rows,
+      orders: ordersWithParsedAddress,
       pagination: {
         total: parseInt(countResult.rows[0].count),
         limit: parseInt(limit),
@@ -451,18 +518,16 @@ router.get('/admin/all', authenticateAdmin, async (req, res) => {
 router.put('/:id/status', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, payment_status, tracking_number, admin_notes } = req.body;
+    const { status, payment_status } = req.body;
 
     const result = await query(`
       UPDATE orders 
       SET status = COALESCE($1, status), 
           payment_status = COALESCE($2, payment_status),
-          tracking_number = COALESCE($3, tracking_number),
-          admin_notes = COALESCE($4, admin_notes),
           updated_at = CURRENT_TIMESTAMP
-      WHERE id = $5 
+      WHERE id = $3 
       RETURNING *
-    `, [status, payment_status, tracking_number, admin_notes, id]);
+    `, [status, payment_status, id]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Order not found' });

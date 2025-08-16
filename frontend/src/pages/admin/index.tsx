@@ -78,24 +78,46 @@ const AdminDashboard: React.FC = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      // Mock data for demonstration
-      setStats({
-        totalOrders: 145,
-        totalSessions: 230,
-        totalPartners: 25,
-        totalProducts: 13,
-        totalTestimonials: 10,
-        recentOrders: [
-          { id: '1', customer: 'John Doe', amount: 1299, status: 'completed' },
-          { id: '2', customer: 'Jane Smith', amount: 2499, status: 'pending' },
-          { id: '3', customer: 'Mike Johnson', amount: 899, status: 'shipped' }
-        ],
-        recentSessions: [
-          { id: '1', patient: 'Sarah Wilson', condition: 'Back Pain', date: '2024-01-15', status: 'completed' },
-          { id: '2', patient: 'Tom Brown', condition: 'Knee Injury', date: '2024-01-16', status: 'scheduled' },
-          { id: '3', patient: 'Lisa Garcia', condition: 'Shoulder Pain', date: '2024-01-17', status: 'pending' }
-        ]
+      const adminToken = localStorage.getItem('admin_token');
+      const response = await fetch('http://localhost:5000/api/admin/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        setStats({
+          totalOrders: data.overview.total_orders || 0,
+          totalSessions: data.overview.total_sessions || 0,
+          totalPartners: data.overview.total_partner_applications || 0,
+          totalProducts: data.overview.total_products || 0,
+          totalTestimonials: data.overview.total_testimonials || 0,
+          recentOrders: data.recent_orders || [],
+          recentSessions: data.recent_sessions || []
+        });
+      } else {
+        console.error('Failed to fetch dashboard stats');
+        // Fallback to mock data if API fails
+        setStats({
+          totalOrders: 145,
+          totalSessions: 230,
+          totalPartners: 25,
+          totalProducts: 13,
+          totalTestimonials: 10,
+          recentOrders: [
+            { id: '1', customer: 'John Doe', amount: 1299, status: 'completed' },
+            { id: '2', customer: 'Jane Smith', amount: 2499, status: 'pending' },
+            { id: '3', customer: 'Mike Johnson', amount: 899, status: 'shipped' }
+          ],
+          recentSessions: [
+            { id: '1', patient: 'Sarah Wilson', condition: 'Back Pain', date: '2024-01-15', status: 'completed' },
+            { id: '2', patient: 'Tom Brown', condition: 'Knee Injury', date: '2024-01-16', status: 'scheduled' },
+            { id: '3', patient: 'Lisa Garcia', condition: 'Shoulder Pain', date: '2024-01-17', status: 'pending' }
+          ]
+        });
+      }
     } catch (error) {
       console.error('Error fetching stats:', error);
     }

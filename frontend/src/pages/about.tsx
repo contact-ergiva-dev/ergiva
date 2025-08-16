@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
 import { HeartIcon, ShieldCheckIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 const AboutPage: React.FC = () => {
@@ -222,18 +223,18 @@ const AboutPage: React.FC = () => {
             Book your first session today and experience professional home physiotherapy.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Link
               href="/book-session"
               className="inline-flex items-center px-6 py-3 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-200"
             >
               Book a Session
-            </a>
-            <a
+            </Link>
+            <Link
               href="/shop"
               className="inline-flex items-center px-6 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-primary-600 transition-colors duration-200"
             >
               Shop Products
-            </a>
+            </Link>
           </div>
         </div>
       </section>

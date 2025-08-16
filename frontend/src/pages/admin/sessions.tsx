@@ -244,7 +244,7 @@ const AdminSessions: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide">Age</label>
-                      <p className="text-gray-900">{viewingSession.patientAge} years</p>
+                      <p className="text-gray-900">{viewingSession.age} years</p>
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide">Email</label>
