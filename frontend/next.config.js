@@ -19,6 +19,8 @@ const nextConfig = {
       'via.placeholder.com',
       'lh3.googleusercontent.com', // Google profile images
       'res.cloudinary.com', // If using Cloudinary
+      'drive.google.com', // Google Drive images
+      'drive.usercontent.google.com', // Google Drive direct content
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
