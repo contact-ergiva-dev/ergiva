@@ -233,7 +233,7 @@ router.delete('/:id', authenticateAdmin, async (req, res) => {
     const { id } = req.params;
 
     const result = await query(
-      'DELETE FROM products WHERE id = $1 RETURNING *',
+      `UPDATE products SET is_active = FALSE WHERE id = $1 RETURNING *`,
       [id]
     );
 
