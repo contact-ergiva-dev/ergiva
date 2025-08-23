@@ -49,9 +49,7 @@ router.get('/featured', async (req, res) => {
     const result = await query(`
       SELECT * FROM testimonials 
       WHERE is_active = TRUE AND is_featured = TRUE
-      ORDER BY created_at DESC 
-      LIMIT 6
-    `);
+      ORDER BY created_at DESC`);
 
     res.json({ testimonials: result.rows });
   } catch (error) {
