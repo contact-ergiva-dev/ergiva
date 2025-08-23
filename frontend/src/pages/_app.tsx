@@ -80,7 +80,7 @@ export default function App({ Component, pageProps }: AppProps) {
               <Toaster
                 position="top-right"
                 toastOptions={{
-                  duration: 4000,
+                  duration: 1500,
                   style: {
                     background: '#363636',
                     color: '#fff',
@@ -90,12 +90,14 @@ export default function App({ Component, pageProps }: AppProps) {
                       primary: '#22c55e',
                       secondary: '#fff',
                     },
+                    duration: 1200,
                   },
                   error: {
                     iconTheme: {
                       primary: '#ef4444',
                       secondary: '#fff',
                     },
+                    duration: 2000,
                   },
                 }}
               />

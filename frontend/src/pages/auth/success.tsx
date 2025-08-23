@@ -25,8 +25,6 @@ const AuthSuccessPage: React.FC = () => {
         // Login the user with the token
         await login(token);
         
-        toast.success('Successfully signed in with Google!');
-        
         // Get the redirect URL from localStorage (set during OAuth initiation)
         const redirectUrl = localStorage.getItem('auth_redirect') || '/';
         localStorage.removeItem('auth_redirect'); // Clean up

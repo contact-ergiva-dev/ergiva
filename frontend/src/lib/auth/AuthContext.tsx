@@ -47,6 +47,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (token) {
         login(token).then(() => {
+          // Show success toast for Google OAuth
+          toast.success('Successfully signed in with Google!');
           // Only redirect after successful login
           router.replace('/');
         }).catch((error) => {
@@ -101,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw error;
     }
     
-    toast.success('Successfully logged in!');
+    // Toast removed to prevent duplication - handled by calling components
   };
 
   const logout = async () => {

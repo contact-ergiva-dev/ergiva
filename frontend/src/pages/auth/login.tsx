@@ -73,6 +73,8 @@ const LoginPage: React.FC = () => {
     if (redirect) {
       localStorage.setItem('auth_redirect', redirect as string);
     }
+    // Show loading toast for Google OAuth
+    toast.loading('Redirecting to Google...', { duration: 1000 });
     window.location.href = `${API_CONFIG.BASE_URL}/auth/google`;
   };
 
