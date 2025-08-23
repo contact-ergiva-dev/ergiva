@@ -1,14 +1,33 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRightIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, PlayIcon, PauseIcon } from '@heroicons/react/24/outline';
 import { useInView } from 'react-intersection-observer';
 
 const HeroSection: React.FC = () => {
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  const toggleVideoPlayback = () => {
+    if (videoRef.current) {
+      if (isVideoPlaying) {
+        videoRef.current.pause();
+        setIsVideoPlaying(false);
+      } else {
+        videoRef.current.play();
+        setIsVideoPlaying(true);
+      }
+    }
+  };
+
+  const handleVideoEnded = () => {
+    setIsVideoPlaying(false);
+  };
 
   return (
     <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-8 md:py-12">
@@ -117,25 +136,70 @@ const HeroSection: React.FC = () => {
             </div>
           </div>
 
-                      {/* Hero Image */}
+                      {/* Hero Video */}
           <div className="relative">
-            <div className="relative w-full h-80 lg:h-[400px] rounded-2xl overflow-hidden shadow-2xl">
-              <Image
-                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop&crop=center"
-                alt="Professional physiotherapist providing treatment at home"
-                fill
-                className="object-cover"
-                priority
-              />
+            <div className="relative w-full h-80 lg:h-[400px] rounded-2xl overflow-hidden shadow-2xl bg-gray-900">
+                                                           <video
+                  ref={videoRef}
+                  className="w-full h-full object-cover"
+                  poster="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop&crop=center"
+                  onEnded={handleVideoEnded}
+                  onError={() => {
+                    // Fallback to image if video fails to load
+                    const videoElement = videoRef.current;
+                    if (videoElement) {
+                      videoElement.style.display = 'none';
+                    }
+                  }}
+                  preload="metadata"
+                  loop
+                  playsInline
+                >
+                 <source src="https://res.cloudinary.com/dyzg8kuzh/video/upload/v1755770946/vijay_bhutani_yeddll.mp4" type="video/mp4" />
+                 {/* Fallback image if video is not supported */}
+                 <Image
+                   src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop&crop=center"
+                   alt="Professional physiotherapist providing treatment at home"
+                   fill
+                   className="object-cover"
+                   priority
+                 />
+               </video>
               
-              {/* Overlay */}
+              {/* Video Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               
-              {/* Play Button for Video */}
-              <button className="absolute inset-0 flex items-center justify-center group">
+              {/* Play/Pause Button */}
+              <button 
+                onClick={toggleVideoPlayback}
+                className="absolute inset-0 flex items-center justify-center group"
+                aria-label={isVideoPlaying ? 'Pause video' : 'Play video'}
+              >
                 <div className="w-20 h-20 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <PlayIcon className="h-8 w-8 text-primary-600 ml-1" />
+                  {isVideoPlaying ? (
+                    <PauseIcon className="h-8 w-8 text-primary-600" />
+                  ) : (
+                    <PlayIcon className="h-8 w-8 text-primary-600 ml-1" />
+                  )}
                 </div>
+                
+                                 {/* Video Status Indicator */}
+                 <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm rounded-full px-3 py-1">
+                   <span className="text-white text-xs font-medium">
+                     {isVideoPlaying ? 'PLAYING' : 'VIDEO'}
+                   </span>
+                 </div>
+                 
+                 {/* Audio Indicator */}
+                 <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm rounded-full px-3 py-1">
+                   <div className="flex items-center space-x-1">
+                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                       <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657z" clipRule="evenodd" />
+                       <path fillRule="evenodd" d="M11.828 5.172a1 1 0 011.414 0A5.983 5.983 0 0115 10a5.983 5.983 0 01-1.758 4.242 1 1 0 01-1.414-1.414A3.987 3.987 0 0013 10c0-1.105-.447-2.105-1.172-2.828z" clipRule="evenodd" />
+                     </svg>
+                     <span className="text-white text-xs font-medium">AUDIO</span>
+                   </div>
+                 </div>
               </button>
             </div>
 
