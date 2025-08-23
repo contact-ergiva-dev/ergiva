@@ -46,11 +46,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = urlParams.get('token');
       
       if (token) {
-        login(token);
-        router.replace('/');
+        login(token).then(() => {
+          // Only redirect after successful login
+          router.replace('/');
+        }).catch((error) => {
+          console.error('Google OAuth login failed:', error);
+          toast.error('Authentication failed');
+          router.replace('/auth/login');
+        });
       } else {
         toast.error('Authentication failed');
-        router.replace('/');
+        router.replace('/auth/login');
       }
     }
   }, [router.asPath]);
@@ -73,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = (token: string) => {
+  const login = async (token: string) => {
     console.log('Login called with token:', token.substring(0, 20) + '...');
     
     // Store token in cookie (expires in 24 hours)
@@ -84,8 +90,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     console.log('Token stored in cookie, now validating...');
     
-    // Get user profile
-    validateAndGetUser();
+    try {
+      // Wait for user profile validation to complete
+      await validateAndGetUser();
+      console.log('User profile loaded successfully');
+    } catch (error) {
+      console.error('Failed to load user profile after login:', error);
+      // Clear invalid token
+      Cookies.remove('auth_token');
+      throw error;
+    }
     
     toast.success('Successfully logged in!');
   };

@@ -67,9 +67,10 @@ api.interceptors.response.use(
     if (status === 401) {
       Cookies.remove('auth_token');
       
-      // Only redirect to login if not already on auth pages
+      // Only redirect to login if not already on auth pages and not during login process
       if (!window.location.pathname.includes('/auth') && 
-          !window.location.pathname.includes('/admin')) {
+          !window.location.pathname.includes('/admin') &&
+          !window.location.pathname.includes('/api/auth/login')) {
         window.location.href = '/auth/login';
       }
       return Promise.reject(new Error('Authentication failed'));

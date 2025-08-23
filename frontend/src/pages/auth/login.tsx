@@ -43,12 +43,20 @@ const LoginPage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        login(data.token);
-        toast.success('Login successful!');
-        
-        // Redirect to the intended page or default to home
-        const redirectUrl = (redirect as string) || '/';
-        router.push(redirectUrl);
+        try {
+          await login(data.token);
+          toast.success('Login successful!');
+          
+          // Small delay to ensure user state is properly set
+          setTimeout(() => {
+            // Redirect to the intended page or default to home
+            const redirectUrl = (redirect as string) || '/';
+            router.push(redirectUrl);
+          }, 100);
+        } catch (error) {
+          console.error('Login completion failed:', error);
+          toast.error('Login failed. Please try again.');
+        }
       } else {
         throw new Error(data.error || 'Login failed');
       }

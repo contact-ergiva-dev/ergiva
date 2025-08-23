@@ -79,12 +79,20 @@ const RegisterPage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        login(data.token);
-        toast.success('Account created successfully!');
-        
-        // Redirect to the intended page or default to home
-        const redirectUrl = (redirect as string) || '/';
-        router.push(redirectUrl);
+        try {
+          await login(data.token);
+          toast.success('Account created successfully!');
+          
+          // Small delay to ensure user state is properly set
+          setTimeout(() => {
+            // Redirect to the intended page or default to home
+            const redirectUrl = (redirect as string) || '/';
+            router.push(redirectUrl);
+          }, 100);
+        } catch (error) {
+          console.error('Registration completion failed:', error);
+          toast.error('Registration failed. Please try again.');
+        }
       } else {
         throw new Error(data.error || 'Registration failed');
       }
