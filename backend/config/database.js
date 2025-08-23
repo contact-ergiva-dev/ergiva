@@ -8,7 +8,10 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'ergiva_db',
   password: process.env.DB_PASSWORD || 'password',
   port: process.env.DB_PORT || 5432,
-  ssl: { rejectUnauthorized: false }
+  // SSL configuration - disable for local development, enable for production
+  ssl: process.env.NODE_ENV === 'production' 
+    ? { rejectUnauthorized: false }
+    : false
 });
 
 // Test database connection

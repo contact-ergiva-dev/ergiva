@@ -12,12 +12,35 @@ const api: AxiosInstance = axios.create({
   },
 });
 
+// Create admin axios instance
+const adminApi: AxiosInstance = axios.create({
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = Cookies.get('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Admin request interceptor to add admin token
+adminApi.interceptors.request.use(
+  (config) => {
+    const adminToken = localStorage.getItem('admin_token');
+    if (adminToken) {
+      config.headers.Authorization = `Bearer ${adminToken}`;
     }
     return config;
   },
@@ -113,6 +136,25 @@ export const apiClient = {
     }).then((response) => response.data),
 };
 
+// Admin API methods
+export const adminApiClient = {
+  // Generic methods
+  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    adminApi.get(url, config).then((response) => response.data),
+
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    adminApi.post(url, data, config).then((response) => response.data),
+
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    adminApi.put(url, data, config).then((response) => response.data),
+
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    adminApi.patch(url, data, config).then((response) => response.data),
+
+  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    adminApi.delete(url, config).then((response) => response.data),
+};
+
 // Authentication API
 export const authAPI = {
   getProfile: () => apiClient.get('/auth/me'),
@@ -129,10 +171,10 @@ export const productsAPI = {
   getFeatured: () => apiClient.get('/products/featured'),
   getById: (id: string) => apiClient.get(`/products/${id}`),
   getCategories: () => apiClient.get('/products/categories/all'),
-  create: (data: any) => apiClient.post('/products', data),
-  update: (id: string, data: any) => apiClient.put(`/products/${id}`, data),
-  delete: (id: string) => apiClient.delete(`/products/${id}`),
-  createCategory: (data: any) => apiClient.post('/products/categories', data),
+  create: (data: any) => adminApiClient.post('/products', data),
+  update: (id: string, data: any) => adminApiClient.put(`/products/${id}`, data),
+  delete: (id: string) => adminApiClient.delete(`/products/${id}`),
+  createCategory: (data: any) => adminApiClient.post('/products/categories', data),
 };
 
 // Orders API
@@ -141,8 +183,8 @@ export const ordersAPI = {
   verifyPayment: (data: any) => apiClient.post('/orders/verify-payment', data),
   getUserOrders: (params?: any) => apiClient.get('/orders/my-orders', { params }),
   getById: (id: string) => apiClient.get(`/orders/${id}`),
-  getAllAdmin: (params?: any) => apiClient.get('/orders/admin/all', { params }),
-  updateStatus: (id: string, data: any) => apiClient.put(`/orders/${id}/status`, data),
+  getAllAdmin: (params?: any) => adminApiClient.get('/orders/admin/all', { params }),
+  updateStatus: (id: string, data: any) => adminApiClient.put(`/orders/${id}/status`, data),
 };
 
 // Sessions API
@@ -151,9 +193,9 @@ export const sessionsAPI = {
   verifyPayment: (data: any) => apiClient.post('/sessions/verify-payment', data),
   getUserSessions: (params?: any) => apiClient.get('/sessions/my-sessions', { params }),
   getById: (id: string) => apiClient.get(`/sessions/${id}`),
-  getAllAdmin: (params?: any) => apiClient.get('/sessions/admin/all', { params }),
-  updateStatus: (id: string, data: any) => apiClient.put(`/sessions/${id}/status`, data),
-  getStats: () => apiClient.get('/sessions/admin/stats'),
+  getAllAdmin: (params?: any) => adminApiClient.get('/sessions/admin/all', { params }),
+  updateStatus: (id: string, data: any) => adminApiClient.put(`/sessions/${id}/status`, data),
+  getStats: () => adminApiClient.get('/sessions/admin/stats'),
 };
 
 // Partners API
@@ -161,11 +203,11 @@ export const partnersAPI = {
   apply: (data: any) => apiClient.post('/partners/apply', data),
   getApplicationStatus: (id: string, email: string) =>
     apiClient.get(`/partners/application/${id}/status`, { params: { email } }),
-  getAllAdmin: (params?: any) => apiClient.get('/partners/admin/all', { params }),
-  getByIdAdmin: (id: string) => apiClient.get(`/partners/admin/${id}`),
-  review: (id: string, data: any) => apiClient.put(`/partners/admin/${id}/review`, data),
-  getStats: () => apiClient.get('/partners/admin/stats'),
-  bulkUpdate: (data: any) => apiClient.put('/partners/admin/bulk-update', data),
+  getAllAdmin: (params?: any) => adminApiClient.get('/partners/admin/all', { params }),
+  getByIdAdmin: (id: string) => adminApiClient.get(`/partners/admin/${id}`),
+  review: (id: string, data: any) => adminApiClient.put(`/partners/admin/${id}/review`, data),
+  getStats: () => adminApiClient.get('/partners/admin/stats'),
+  bulkUpdate: (data: any) => adminApiClient.put('/partners/admin/bulk-update', data),
 };
 
 // Testimonials API
@@ -173,27 +215,28 @@ export const testimonialsAPI = {
   getAll: (params?: any) => apiClient.get('/testimonials', { params }),
   getFeatured: () => apiClient.get('/testimonials/featured'),
   getById: (id: string) => apiClient.get(`/testimonials/${id}`),
-  getAllAdmin: (params?: any) => apiClient.get('/testimonials/admin/all', { params }),
-  create: (data: any) => apiClient.post('/testimonials', data),
-  update: (id: string, data: any) => apiClient.put(`/testimonials/${id}`, data),
-  delete: (id: string) => apiClient.delete(`/testimonials/${id}`),
+  getByIdAdmin: (id: string) => adminApiClient.get(`/testimonials/admin/${id}`),
+  getAllAdmin: (params?: any) => adminApiClient.get('/testimonials/admin/all', { params }),
+  create: (data: any) => adminApiClient.post('/testimonials', data),
+  update: (id: string, data: any) => adminApiClient.put(`/testimonials/${id}`, data),
+  delete: (id: string) => adminApiClient.delete(`/testimonials/${id}`),
   toggleFeatured: (id: string, is_featured: boolean) =>
-    apiClient.patch(`/testimonials/${id}/featured`, { is_featured }),
+    adminApiClient.patch(`/testimonials/${id}/featured`, { is_featured }),
   toggleActive: (id: string, is_active: boolean) =>
-    apiClient.patch(`/testimonials/${id}/active`, { is_active }),
-  getStats: () => apiClient.get('/testimonials/admin/stats'),
-  bulkUpdate: (data: any) => apiClient.put('/testimonials/admin/bulk-update', data),
+    adminApiClient.patch(`/testimonials/${id}/active`, { is_active }),
+  getStats: () => adminApiClient.get('/testimonials/admin/stats'),
+  bulkUpdate: (data: any) => adminApiClient.put('/testimonials/admin/bulk-update', data),
 };
 
 // Admin API
 export const adminAPI = {
-  getDashboard: () => apiClient.get('/admin/dashboard'),
-  getRecentActivities: (params?: any) => apiClient.get('/admin/recent-activities', { params }),
-  getSystemHealth: () => apiClient.get('/admin/system-health'),
-  getUsers: (params?: any) => apiClient.get('/admin/users', { params }),
+  getDashboard: () => adminApiClient.get('/admin/dashboard'),
+  getRecentActivities: (params?: any) => adminApiClient.get('/admin/recent-activities', { params }),
+  getSystemHealth: () => adminApiClient.get('/admin/system-health'),
+  getUsers: (params?: any) => adminApiClient.get('/admin/users', { params }),
   updateUserAdmin: (id: string, is_admin: boolean) =>
-    apiClient.put(`/admin/users/${id}/admin`, { is_admin }),
-  getLogs: (params?: any) => apiClient.get('/admin/logs', { params }),
+    adminApiClient.put(`/admin/users/${id}/admin`, { is_admin }),
+  getLogs: (params?: any) => adminApiClient.get('/admin/logs', { params }),
 };
 
 // Utility functions

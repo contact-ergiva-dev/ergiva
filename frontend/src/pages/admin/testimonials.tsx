@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, EyeIcon, PlayIcon, StarIcon as StarIconOutline, XMarkIcon, UserIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
-import { API_CONFIG } from '@/config/constants';
+import { testimonialsAPI } from '@/lib/api';
 
 interface Testimonial {
   id: string;
@@ -36,13 +36,7 @@ const AdminTestimonials: React.FC = () => {
 
   const fetchTestimonials = async () => {
     try {
-      const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/admin/all`, {
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
-      });
-      const data = await response.json();
+      const data = await testimonialsAPI.getAllAdmin();
       setTestimonials(data.testimonials || []);
     } catch (error) {
       console.error('Error fetching testimonials:', error);
@@ -54,19 +48,9 @@ const AdminTestimonials: React.FC = () => {
 
   const handleToggleFeatured = async (testimonialId: string, isFeatured: boolean) => {
     try {
-      const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/${testimonialId}/featured`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminToken}`
-        },
-        body: JSON.stringify({ is_featured: !isFeatured })
-      });
+      const data = await testimonialsAPI.toggleFeatured(testimonialId, !isFeatured);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         const updatedTestimonials = testimonials.map(testimonial =>
           testimonial.id === testimonialId ? { ...testimonial, is_featured: !isFeatured } : testimonial
         );
@@ -83,19 +67,9 @@ const AdminTestimonials: React.FC = () => {
 
   const handleToggleActive = async (testimonialId: string, isActive: boolean) => {
     try {
-      const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/${testimonialId}/active`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminToken}`
-        },
-        body: JSON.stringify({ is_active: !isActive })
-      });
+      const data = await testimonialsAPI.toggleActive(testimonialId, !isActive);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         const updatedTestimonials = testimonials.map(testimonial =>
           testimonial.id === testimonialId ? { ...testimonial, is_active: !isActive } : testimonial
         );
@@ -116,17 +90,9 @@ const AdminTestimonials: React.FC = () => {
     }
 
     try {
-      const adminToken = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/testimonials/${testimonialId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
-      });
+      const data = await testimonialsAPI.delete(testimonialId);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         const updatedTestimonials = testimonials.filter(testimonial => testimonial.id !== testimonialId);
         setTestimonials(updatedTestimonials);
         toast.success('Testimonial deleted successfully');
@@ -257,14 +223,18 @@ const AdminTestimonials: React.FC = () => {
                                     className="h-10 w-10 rounded-full object-cover"
                                     src={testimonial.image_url}
                                     alt={testimonial.name}
+                                    onError={(e) => {
+                                      const img = e.currentTarget;
+                                      img.style.display = 'none';
+                                      img.nextElementSibling?.classList.remove('hidden');
+                                    }}
                                   />
-                                ) : (
-                                  <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                    <span className="text-sm font-medium text-gray-700">
-                                      {testimonial.name.charAt(0)}
-                                    </span>
-                                  </div>
-                                )}
+                                ) : null}
+                                <div className={`h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center ${testimonial.image_url ? 'hidden' : ''}`}>
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {testimonial.name.charAt(0)}
+                                  </span>
+                                </div>
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{testimonial.name}</div>
@@ -331,13 +301,13 @@ const AdminTestimonials: React.FC = () => {
                               >
                                 <EyeIcon className="h-4 w-4" />
                               </button>
-                              <button
-                                onClick={() => toast('Edit testimonial feature coming soon!', { icon: 'ℹ️' })}
+                              <Link
+                                href={`/admin/testimonials/edit/${testimonial.id}`}
                                 className="text-green-600 hover:text-green-900"
                                 title="Edit"
                               >
                                 <PencilIcon className="h-4 w-4" />
-                              </button>
+                              </Link>
                               <button
                                 onClick={() => handleDelete(testimonial.id)}
                                 className="text-red-600 hover:text-red-900"
@@ -448,11 +418,11 @@ const AdminTestimonials: React.FC = () => {
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-100">
                     <h4 className="text-lg font-semibold text-gray-900 mb-3">Video Testimonial</h4>
                     <div className="relative bg-gray-900 rounded-lg overflow-hidden">
-                      <video 
-                        controls 
-                        className="w-full h-64 object-cover"
-                        poster={viewingTestimonial.image_url || 'https://via.placeholder.com/400x300?text=Video+Testimonial'}
-                      >
+                                             <video 
+                         controls 
+                         className="w-full h-64 object-cover"
+                         poster={viewingTestimonial.image_url || 'https://via.placeholder.com/400x300?text=Video+Testimonial'}
+                       >
                         <source src={viewingTestimonial.video_url} type="video/mp4" />
                         Your browser does not support the video tag.
                       </video>
@@ -464,14 +434,14 @@ const AdminTestimonials: React.FC = () => {
                 {viewingTestimonial.image_url && !viewingTestimonial.video_url && (
                   <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100">
                     <h4 className="text-lg font-semibold text-gray-900 mb-3">Customer Photo</h4>
-                    <img 
-                      src={viewingTestimonial.image_url} 
-                      alt={viewingTestimonial.name}
-                      className="w-full h-64 object-cover rounded-lg"
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Customer+Photo';
-                      }}
-                    />
+                                         <img 
+                       src={viewingTestimonial.image_url} 
+                       alt={viewingTestimonial.name}
+                       className="w-full h-64 object-cover rounded-lg"
+                       onError={(e) => {
+                         e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Customer+Photo';
+                       }}
+                     />
                   </div>
                 )}
 

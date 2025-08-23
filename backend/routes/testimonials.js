@@ -81,8 +81,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Admin Routes
-
 // Get all testimonials for admin (admin)
 router.get('/admin/all', authenticateAdmin, async (req, res) => {
   try {
@@ -158,6 +156,31 @@ router.get('/admin/all', authenticateAdmin, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch testimonials' });
   }
 });
+
+// Get single testimonial for admin (admin only)
+router.get('/admin/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await query(
+      'SELECT * FROM testimonials WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Testimonial not found' });
+    }
+
+    res.json({ testimonial: result.rows[0] });
+  } catch (error) {
+    console.error('Admin get testimonial error:', error);
+    res.status(500).json({ error: 'Failed to fetch testimonial' });
+  }
+});
+
+// Admin Routes
+
+
 
 // Create testimonial (admin)
 router.post('/', authenticateAdmin, async (req, res) => {
