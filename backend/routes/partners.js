@@ -9,7 +9,7 @@ router.post('/apply', async (req, res) => {
   try {
     const {
       name,
-      mobile,
+      phone,
       email,
       qualification,
       years_experience,
@@ -18,9 +18,9 @@ router.post('/apply', async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!name || !mobile || !email || !qualification || !years_experience) {
+    if (!name || !phone || !email || !qualification || !years_experience) {
       return res.status(400).json({ 
-        error: 'Name, mobile, email, qualification, and years of experience are required' 
+        error: 'Name, phone, email, qualification, and years of experience are required' 
       });
     }
 
@@ -42,7 +42,7 @@ router.post('/apply', async (req, res) => {
       (name, mobile, email, qualification, years_experience, preferred_area, additional_info)
       VALUES ($1, $2, $3, $4, $5, $6, $7) 
       RETURNING *
-    `, [name, mobile, email, qualification, years_experience, preferred_area, additional_info]);
+    `, [name, phone, email, qualification, years_experience, preferred_area, additional_info]);
 
     const application = result.rows[0];
 
@@ -60,7 +60,7 @@ router.post('/apply', async (req, res) => {
       // Send notification to admin
       await sendPartnerApplicationConfirmation('admin@ergiva.com', {
         name,
-        mobile,
+        phone,
         email,
         qualification,
         years_experience,

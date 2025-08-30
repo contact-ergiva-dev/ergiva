@@ -265,11 +265,12 @@ export interface BookingFormData {
 
 export interface PartnerFormData {
   name: string;
-  mobile: string;
+  phone: string;
   email: string;
   qualification: string;
-  years_experience: number;
-  preferred_area?: string;
+  years_experience: string;
+  specialization: string;
+  location: string;
   additional_info?: string;
 }
 

@@ -9,13 +9,10 @@ interface PartnerForm {
   phone: string;
   email: string;
   qualification: string;
-  experience: string;
+  years_experience: string;
   specialization: string;
   location: string;
-  availability: string;
-  expectedSalary: string;
-  resume: File | null;
-  about: string;
+  additional_info: string;
 }
 
 const JoinPartnerPage: React.FC = () => {
@@ -24,13 +21,10 @@ const JoinPartnerPage: React.FC = () => {
     phone: '',
     email: '',
     qualification: '',
-    experience: '',
+    years_experience: '',
     specialization: '',
     location: '',
-    availability: '',
-    expectedSalary: '',
-    resume: null,
-    about: ''
+    additional_info: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -42,31 +36,28 @@ const JoinPartnerPage: React.FC = () => {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFormData(prev => ({
-      ...prev,
-      resume: file
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'resume' && value) {
-          formDataToSend.append(key, value);
-        } else if (key !== 'resume') {
-          formDataToSend.append(key, value as string);
-        }
-      });
+      // Create the payload with the correct field names expected by the API
+      const payload = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        qualification: formData.qualification,
+        years_experience: formData.years_experience,
+        preferred_area: formData.specialization, // Map specialization to preferred_area
+        additional_info: formData.additional_info
+      };
 
-      const response = await fetch(`${API_CONFIG.BASE_URL}/partners`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/partners/apply`, {
         method: 'POST',
-        body: formDataToSend,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -76,20 +67,18 @@ const JoinPartnerPage: React.FC = () => {
           phone: '',
           email: '',
           qualification: '',
-          experience: '',
+          years_experience: '',
           specialization: '',
           location: '',
-          availability: '',
-          expectedSalary: '',
-          resume: null,
-          about: ''
+          additional_info: ''
         });
       } else {
-        throw new Error('Failed to submit application');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit application');
       }
     } catch (error) {
       console.error('Error submitting application:', error);
-      toast.error('Failed to submit application. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to submit application. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -333,10 +322,10 @@ const JoinPartnerPage: React.FC = () => {
                       <div className="relative">
                         <BriefcaseIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <select
-                          name="experience"
+                          name="years_experience"
                           required
                           className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                          value={formData.experience}
+                          value={formData.years_experience}
                           onChange={handleInputChange}
                         >
                           <option value="">Select experience</option>
@@ -372,77 +361,17 @@ const JoinPartnerPage: React.FC = () => {
                   </select>
                 </div>
 
-                {/* Availability & Salary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Availability *
-                    </label>
-                    <select
-                      name="availability"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      value={formData.availability}
-                      onChange={handleInputChange}
-                    >
-                      <option value="">Select availability</option>
-                      <option value="full-time">Full Time (6 days/week)</option>
-                      <option value="part-time">Part Time (3-4 days/week)</option>
-                      <option value="weekends">Weekends Only</option>
-                      <option value="flexible">Flexible</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Expected Monthly Salary *
-                    </label>
-                    <select
-                      name="expectedSalary"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      value={formData.expectedSalary}
-                      onChange={handleInputChange}
-                    >
-                      <option value="">Select salary range</option>
-                      <option value="30-40k">₹30,000 - ₹40,000</option>
-                      <option value="40-50k">₹40,000 - ₹50,000</option>
-                      <option value="50-60k">₹50,000 - ₹60,000</option>
-                      <option value="60-80k">₹60,000 - ₹80,000</option>
-                      <option value="80k+">₹80,000+</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Resume Upload */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Resume/CV *
-                  </label>
-                  <input
-                    type="file"
-                    name="resume"
-                    accept=".pdf,.doc,.docx"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    onChange={handleFileChange}
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Upload your resume in PDF, DOC, or DOCX format (max 5MB)
-                  </p>
-                </div>
-
                 {/* About Yourself */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Tell us about yourself
                   </label>
                   <textarea
-                    name="about"
+                    name="additional_info"
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     placeholder="Tell us about your experience, motivation, and why you want to join Ergiva..."
-                    value={formData.about}
+                    value={formData.additional_info}
                     onChange={handleInputChange}
                   />
                 </div>

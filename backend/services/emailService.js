@@ -123,14 +123,6 @@ const emailTemplates = {
               <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold;">Session Type</td>
               <td style="padding: 15px; border-bottom: 1px solid #eee;">${sessionData.session_type === 'home_visit' ? 'Home Visit' : 'Online Consultation'}</td>
             </tr>
-            <tr style="background: #f8f9fa;">
-              <td style="padding: 15px; font-weight: bold;">Amount</td>
-              <td style="padding: 15px;">₹${sessionData.amount}</td>
-            </tr>
-            <tr>
-              <td style="padding: 15px; font-weight: bold;">Payment</td>
-              <td style="padding: 15px;">${sessionData.payment_method === 'razorpay' ? 'Online Payment' : 'Pay on Visit'}</td>
-            </tr>
           </table>
           
           <div style="margin-top: 30px;">

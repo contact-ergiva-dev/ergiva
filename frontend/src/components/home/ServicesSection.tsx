@@ -97,10 +97,10 @@ const ServicesSection: React.FC = () => {
                   ))}
                 </ul>
 
-                {/* Price */}
-                <div className="pt-4 border-t border-gray-100">
+                {/* Price - Removed */}
+                {/* <div className="pt-4 border-t border-gray-100">
                   <div className="text-lg font-bold text-primary-600">{service.price}</div>
-                </div>
+                </div> */}
 
                 {/* CTA Button */}
                 <Link 
