@@ -57,7 +57,7 @@ const AboutPage: React.FC = () => {
     { year: '2020', event: 'Launched home physiotherapy services in Delhi NCR' },
     { year: '2021', event: 'Expanded to 50+ certified physiotherapists' },
     { year: '2022', event: 'Introduced online product store with quality equipment' },
-    { year: '2023', event: 'Served 10,000+ patients across Delhi NCR' },
+    { year: '2023', event: 'Served 200+ patients across Delhi NCR' },
     { year: '2024', event: 'Expanded services with 500+ partner physiotherapists' }
   ];
 
@@ -153,7 +153,7 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Our Team */}
-      <section className="py-8 bg-gray-50">
+      {/* <section className="py-8 bg-gray-50">
         <div className="container-custom">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
@@ -185,18 +185,18 @@ const AboutPage: React.FC = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Statistics */}
       <section className="py-8 bg-primary-600 text-white">
         <div className="container-custom">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl md:text-5xl font-bold mb-2">10K+</div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">200+</div>
               <div className="text-lg opacity-90">Happy Patients</div>
             </div>
             <div>
-              <div className="text-4xl md:text-5xl font-bold mb-2">500+</div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">10+</div>
               <div className="text-lg opacity-90">Expert Physiotherapists</div>
             </div>
             <div>

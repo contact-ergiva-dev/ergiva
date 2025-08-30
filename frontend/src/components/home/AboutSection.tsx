@@ -17,11 +17,11 @@ const AboutSection: React.FC = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary-600 mb-2">10K+</div>
+              <div className="text-2xl font-bold text-primary-600 mb-2">200+</div>
               <div className="text-sm text-gray-600">Happy Patients</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary-600 mb-2">500+</div>
+                <div className="text-2xl font-bold text-primary-600 mb-2">10+</div>
               <div className="text-sm text-gray-600">Expert Physiotherapists</div>
             </div>
             <div className="text-center">

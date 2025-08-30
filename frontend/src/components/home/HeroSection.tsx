@@ -53,7 +53,7 @@ const HeroSection: React.FC = () => {
             {/* Badge */}
             <div className="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-800 rounded-full text-sm font-medium">
               <span className="w-2 h-2 bg-primary-500 rounded-full mr-2 animate-pulse" />
-              Trusted by 10,000+ families in Delhi NCR
+              Trusted by 200+ families in Delhi NCR
             </div>
 
             {/* Heading */}
@@ -122,11 +122,11 @@ const HeroSection: React.FC = () => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200">
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary-600">10K+</div>
+                <div className="text-2xl font-bold text-primary-600">200+</div>
                 <div className="text-sm text-gray-600">Happy Patients</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary-600">500+</div>
+                <div className="text-2xl font-bold text-primary-600">10+</div>
                 <div className="text-sm text-gray-600">Expert Physiotherapists</div>
               </div>
               <div className="text-center">

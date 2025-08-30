@@ -270,7 +270,7 @@ const TestimonialsSection: React.FC = () => {
             </div>
             <span className="text-lg font-semibold text-gray-900 ml-2">4.9/5</span>
             <span className="text-gray-500">•</span>
-            <span className="text-gray-600">2,500+ reviews</span>
+            <span className="text-gray-600">100+ reviews</span>
           </div>
         </div>
 
