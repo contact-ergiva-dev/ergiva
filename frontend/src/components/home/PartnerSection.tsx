@@ -13,13 +13,9 @@ const PartnerSection: React.FC = () => {
             Be part of Delhi NCR's leading physiotherapy service. Flexible schedules and competitive pay.
           </p>
           
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="text-center">
-              <div className="text-xl font-bold mb-1">₹50K+</div>
-              <div className="text-sm opacity-90">Monthly</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl font-bold mb-1">500+</div>
+              <div className="text-xl font-bold mb-1">10+</div>
               <div className="text-sm opacity-90">Partners</div>
             </div>
             <div className="text-center">

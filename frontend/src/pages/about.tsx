@@ -204,7 +204,7 @@ const AboutPage: React.FC = () => {
               <div className="text-lg opacity-90">Years Experience</div>
             </div>
             <div>
-              <div className="text-4xl md:text-5xl font-bold mb-2">50K+</div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">100+</div>
               <div className="text-lg opacity-90">Sessions Completed</div>
             </div>
           </div>
