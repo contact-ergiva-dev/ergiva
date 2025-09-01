@@ -118,9 +118,9 @@ const AdminSessions: React.FC = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Session ID
-                        </th>
+                        </th> */}
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Patient
                         </th>
@@ -142,9 +142,9 @@ const AdminSessions: React.FC = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {sessions.map((session) => (
                         <tr key={session.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {/* <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             #{session.id}
-                          </td>
+                          </td> */}
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div>
                               <div className="text-sm font-medium text-gray-900">{session.patientName}</div>
